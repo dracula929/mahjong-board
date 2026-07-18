@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🀄 雀神爭霸戰 - 霓虹戰績榜</title>
+    <!-- 引入 Chart.js 用於繪製折線圖 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #07080d; 
+            --card-bg: rgba(22, 24, 38, 0.85);
+            --neon-pink: #ff007f;
+            --neon-cyan: #00f0ff;
+            --neon-green: #39ff14;
+            --neon-purple: #9d4edd;
+            --neon-orange: #ff9e00;
+            --neon-yellow: #ffff00;
+            --neon-gold: #ffd700;
+            --neon-blue: #0044ff;
+            --text-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before, body::after {
+            content: "";
+            position: fixed;
+            width: 45vmax;
+            height: 45vmax;
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(90px);
+            opacity: 0.22; 
+        }
+
+        body::before {
+            background: var(--neon-pink);
+            top: 10%;
+            left: -10%;
+            animation: floatingAmbient 6s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            background: var(--neon-cyan);
+            bottom: 10%;
+            right: -10%;
+            animation: floatingAmbient 8s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatingAmbient {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 40px) scale(1.25); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8rem;
+            color: #fff;
+            margin-bottom: 30px;
+            letter-spacing: 4px;
+            animation: titleNeonFlow 2.5s linear infinite;
+        }
+
+        @keyframes titleNeonFlow {
+            0%, 100% { text-shadow: 0 0 7px #fff, 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan); }
+            33% { text-shadow: 0 0 7px #fff, 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink); }
+            66% { text-shadow: 0 0 7px #fff, 0 0 15px var(--neon-green), 0 0 30px var(--neon-green); }
+        }
+
+        .alert-banner {
+            background: rgba(255, 0, 127, 0.15);
+            border: 2px solid var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.2);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            color: #fff;
+            font-weight: bold;
+        }
+        .alert-title {
+            color: var(--neon-pink);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 0 8px var(--neon-pink);
+        }
+        .alert-item {
+            font-size: 0.95rem;
+            margin: 4px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+        .alert-item::before {
+            content: "•";
+            color: var(--neon-pink);
+            position: absolute;
+            left: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 0, 127, 0.7);
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.4);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+        }
+
+        .badge-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 550px) {
+            .badge-container { grid-template-columns: 1fr; }
+        }
+
+        .badge-card {
+            background: rgba(10, 11, 18, 0.8);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            position: relative;
+            border: 2px solid transparent; 
+        }
+
+        .badge-winner { animation: neonPulseGreen 1.2s ease-in-out infinite alternate; }
+        .badge-loser { animation: neonPulsePink 1.2s ease-in-out infinite alternate-reverse; }
+
+        @keyframes neonPulseGreen {
+            0% { border-color: rgba(57, 255, 20, 0.3); box-shadow: inset 0 0 15px rgba(57, 255, 20, 0.1), 0 0 8px rgba(57, 255, 20, 0.2); }
+            100% { border-color: rgba(57, 255, 20, 1); box-shadow: inset 0 0 25px rgba(57, 255, 20, 0.3), 0 0 25px rgba(57, 255, 20, 0.7); }
+        }
+
+        @keyframes neonPulsePink {
+            0% { border-color: rgba(255, 0, 127, 0.3); box-shadow: inset 0 0 15px rgba(255, 0, 127, 0.1), 0 0 8px rgba(255, 0, 127, 0.2); }
+            100% { border-color: rgba(255, 0, 127, 1); box-shadow: inset 0 0 25px rgba(255, 0, 127, 0.3), 0 0 25px rgba(255, 0, 127, 0.7); }
+        }
+
+        .badge-icon { font-size: 2.5rem; margin-bottom: 5px; display: block; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+        .badge-title { font-size: 0.85rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-name { font-size: 1.6rem; font-weight: bold; color: #fff; margin: 5px 0; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
+        .badge-score { font-size: 1.3rem; font-weight: bold; }
+
+        .score-plus { color: var(--neon-green); text-shadow: 0 0 8px rgba(57, 255, 20, 0.8); }
+        .score-minus { color: var(--neon-pink); text-shadow: 0 0 8px rgba(255, 0, 127, 0.8); }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            margin-top: 15px;
+        }
+
+        .leaderboard-item { margin-bottom: 20px; }
+        .player-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-weight: bold; }
+        .player-name-wrapper { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        .title-tag { 
+            font-size: 0.75rem; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            cursor: help; 
+            transition: transform 0.1s ease;
+            display: inline-block;
+        }
+        .title-tag:hover { transform: scale(1.08); }
+
+        .tag-god { border: 1px solid var(--neon-gold); color: var(--neon-gold); text-shadow: 0 0 8px var(--neon-gold); background: rgba(255, 215, 0, 0.2); }
+        .tag-championship { border: 1px solid var(--neon-orange); color: var(--neon-orange); text-shadow: 0 0 5px var(--neon-orange); background: rgba(255, 158, 0, 0.15); }
+        .tag-charity { border: 1px solid var(--neon-pink); color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); background: rgba(255, 0, 127, 0.15); }
+        .tag-sky { border: 1px solid var(--neon-cyan); color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); background: rgba(0, 240, 255, 0.15); }
+        .tag-submarine { border: 1px solid #ff5500; color: #ff5500; text-shadow: 0 0 5px #ff5500; background: rgba(255, 85, 0, 0.15); }
+        .tag-stable { border: 1px solid var(--neon-purple); color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple); background: rgba(157, 78, 221, 0.15); }
+        .tag-bigwin { border: 1px solid var(--neon-green); color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); background: rgba(57, 255, 20, 0.15); }
+        .tag-bigloss { border: 1px solid #ff0000; color: #ff0000; text-shadow: 0 0 5px #ff0000; background: rgba(255, 0, 0, 0.15); }
+        .tag-veteran { border: 1px solid var(--neon-yellow); color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); background: rgba(255, 255, 0, 0.15); }
+        .tag-flat { border: 1px solid #0044ff; color: #66b3ff; text-shadow: 0 0 5px #0044ff; background: rgba(0, 68, 255, 0.15); }
+        
+        .tag-session-champion { border: 1px solid var(--neon-gold); color: #fff; text-shadow: 0 0 8px var(--neon-gold); background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(255,158,0,0.2)); animation: titleNeonFlow 2s linear infinite; }
+        .tag-session-loser { border: 1px solid #ff0000; color: #fff; text-shadow: 0 0 8px #ff0000; background: linear-gradient(135deg, rgba(255,0,0,0.4), rgba(255,0,127,0.2)); }
+
+        .bar-container { background: rgba(255, 255, 255, 0.08); height: 12px; border-radius: 6px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 6px; width: 0%; transition: width 1s ease-out; }
+        .bar-positive { background: linear-gradient(90deg, #00f0ff, var(--neon-green)); box-shadow: 0 0 12px var(--neon-green); }
+        .bar-negative { background: linear-gradient(90deg, #ff007f, #ff5500); box-shadow: 0 0 12px var(--neon-pink); }
+
+        .date-group { background: rgba(255, 255, 255, 0.01); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 18px; position: relative;}
+        .date-header { font-size: 1.1rem; font-weight: bold; color: var(--neon-cyan); text-shadow: 0 0 6px rgba(0, 240, 255, 0.6); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .date-title-text { display: flex; align-items: center; }
+        .date-title-text::before { content: '📅'; margin-right: 8px; }
+        
+        .status-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: normal; text-shadow: none; }
+        .status-success { background: rgba(57, 255, 20, 0.2); border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .status-error { background: rgba(255, 0, 127, 0.2); border: 1px solid var(--neon-pink); color: var(--neon-pink); animation: neonPulsePink 1s ease-in-out infinite alternate; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 12px; text-align: left; vertical-align: middle; }
+        tr:not(:last-child) td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { color: #888; font-size: 0.85rem; font-weight: normal; border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 6px; }
+
+        .table-player-cell { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        #loading { text-align: center; font-size: 1.2rem; color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); padding: 50px 0; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--neon-cyan); animation: spin 0.8s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🀄 雀神爭霸戰</h1>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        正在連線至 Google 試算表讀取最新戰報...
+    </div>
+
+    <!-- 錯誤提示區塊 -->
+    <div id="error-alert-zone" style="display: none;"></div>
+
+    <div id="main-content" style="display: none;">
+        <!-- 當日勳章 -->
+        <div class="badge-container">
+            <div class="badge-card badge-winner">
+                <span class="badge-icon">👑</span>
+                <span class="badge-title">當日雀神 MVP</span>
+                <div class="badge-name" id="day-winner-name">-</div>
+                <div class="badge-score score-plus" id="day-winner-score">-</div>
+            </div>
+            <div class="badge-card badge-loser">
+                <span class="badge-icon">💩</span>
+                <span class="badge-title">當日最慘爐主</span>
+                <div class="badge-name" id="day-loser-name">-</div>
+                <div class="badge-score score-minus" id="day-loser-score">-</div>
+            </div>
+        </div>
+
+        <!-- 個人每場戰績走勢圖表 -->
+        <div class="card">
+            <h2>📉 個人每場戰績走勢圖表（單場獨立輸贏）</h2>
+            <div class="chart-wrapper">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 生涯累積英雄榜 -->
+        <div class="card">
+            <h2>🏆 英雄榜（生涯累積總輸贏，滑鼠懸停稱號可看說明）</h2>
+            <div id="leaderboard-list"></div>
+        </div>
+
+        <!-- 按日期分組的戰績明細 -->
+        <div class="card">
+            <h2>📜 歷史戰局明細（按日期分組，含單場動態榮譽稱號）</h2>
+            <div id="history-groups-container"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function isDong(name) {
+        const target = name.trim();
+        return target === "東" || target === "東錢" || target === "抽東" || target === "公積金";
+    }
+
+    function loadDataViaJSONP() {
+        const spreadsheetId = "13sqVjAURtcHA34-j1-rI8ytSpHrtZwZ5Be_CSGsI4Ak";
+        const jsonpUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=responseHandler:processGoogleData&t=${new Date().getTime()}`;
+        
+        const script = document.createElement('script');
+        script.src = jsonpUrl;
+        script.onerror = function() {
+            document.getElementById('loading').innerHTML = `
+                <div style="color: #ff007f; text-shadow: 0 0 8px #ff007f;">❌ 載入失敗！請確認您的網路連線是否正常。</div>`;
+        };
+        document.body.appendChild(script);
+    }
+
+    window.processGoogleData = function(response) {
+        if (!response || response.status !== 'ok' || !response.table || !response.table.rows) {
+            document.getElementById('loading').innerHTML = "🀄 無法解析試算表結構，請確認表格內容填寫是否正確。";
+            return;
+        }
+
+        const rows = response.table.rows;
+        
+        const rawData = rows.map(row => {
+            const cells = row.c;
+            return {
+                date: cells[0] ? (cells[0].f || cells[0].v || "") : "",
+                name: cells[1] ? (cells[1].v || "") : "",
+                score: cells[2] ? (parseInt(cells[2].v) || 0) : 0,
+                note: cells[3] ? (cells[3].v || "") : ""
+            };
+        }).filter(item => item.name && item.name !== "姓名" && item.name !== "玩家");
+
+        if (rawData.length === 0) {
+            document.getElementById('loading').innerHTML = "🀄 試算表讀取成功，但目前沒有找到任何玩家戰績！";
+            return;
+        }
+
+        const uniqueDates = [...new Set(rawData.map(item => item.date))].sort((a,b) => new Date(a) - new Date(b));
+
+        // --- 1. 生涯數據統計 ---
+        const playerStats = {};
+        let globalMaxWin = -Infinity;
+        let globalMaxLoss = Infinity;
+
+        rawData.forEach(item => {
+            if (isDong(item.name)) return;
+            
+            if (!playerStats[item.name]) {
+                playerStats[item.name] = {
+                    name: item.name,
+                    totalScore: 0,
+                    gamesCount: 0,
+                    winGamesCount: 0,
+                    scoresList: [],
+                    maxWin: -Infinity,
+                    maxLoss: Infinity,
+                    singleGameHistory: {}
+                };
+            }
+
+            const p = playerStats[item.name];
+            p.totalScore += item.score;
+            p.gamesCount += 1;
+            p.scoresList.push(item.score);
+            if (item.score > 0) p.winGamesCount += 1;
+            if (item.score > p.maxWin) p.maxWin = item.score;
+            if (item.score < p.maxLoss) p.maxLoss = item.score;
+
+            if (item.score > globalMaxWin) globalMaxWin = item.score;
+            if (item.score < globalMaxLoss) globalMaxLoss = item.score;
+        });
+
+        Object.keys(playerStats).forEach(name => {
+            const p = playerStats[name];
+            uniqueDates.forEach(date => {
+                const dayRecords = rawData.filter(r => r.date === date && r.name === name);
+                const daySum = dayRecords.reduce((sum, r) => sum + r.score, 0);
+                if (dayRecords.length > 0) {
+                    p.singleGameHistory[date] = daySum;
+                } else {
+                    p.singleGameHistory[date] = null;
+                }
+            });
+        });
+
+        Object.keys(playerStats).forEach(name => {
+            const p = playerStats[name];
+            p.winRate = p.gamesCount > 0 ? (p.winGamesCount / p.gamesCount) : 0;
+            
+            if (p.gamesCount > 1) {
+                const avg = p.totalScore / p.gamesCount;
+                const squareDiffs = p.scoresList.map(v => Math.pow(v - avg, 2));
+                const avgSquareDiff = squareDiffs.reduce((sum, v) => sum + v, 0) / squareDiffs.length;
+                p.stdDev = Math.sqrt(avgSquareDiff);
+            } else {
+                p.stdDev = Infinity;
+            }
+        });
+
+        const allPlayersArr = Object.values(playerStats);
+        const maxWinRate = Math.max(...allPlayersArr.filter(p => p.gamesCount >= 2).map(p => p.winRate), -1);
+        const minStdDev = Math.min(...allPlayersArr.filter(p => p.gamesCount >= 2).map(p => p.stdDev), Infinity);
+        const minTotalScore = Math.min(...allPlayersArr.map(p => p.totalScore), 0);
+        const maxTotalScore = Math.max(...allPlayersArr.map(p => p.totalScore), -1);
+
+        // --- 生涯累積稱號 ---
+        allPlayersArr.forEach(p => {
+            p.titles = [];
+            if (p.totalScore === maxTotalScore && maxTotalScore > 0) {
+                p.titles.push({ text: "😎 賭神高進", class: "tag-god", desc: "生涯累積贏分全場最高！巧克力準備好，勝率隨他操縱！" });
+            }
+            if (p.gamesCount >= 2 && p.winRate === maxWinRate && p.winRate > 0.5) {
+                p.titles.push({ text: "👑 常勝將軍", class: "tag-championship", desc: "勝率為全場最高且超過50%，桌上的不敗神話！" });
+            }
+            if (p.totalScore === minTotalScore && p.totalScore < 0) {
+                p.titles.push({ text: "💰 慈善大亨", class: "tag-charity", desc: "生涯累積送出最多點數，功德無量，大家謝謝你！" });
+            }
+            if (p.maxWin === globalMaxWin && globalMaxWin > 0) {
+                p.titles.push({ text: "🐴 單場呂布", class: "tag-sky", desc: "創造過單局全場最高贏分紀錄，人中呂布，馬中赤兔！" });
+            }
+            if (p.maxLoss === globalMaxLoss && globalMaxLoss < 0) {
+                p.titles.push({ text: "⚓ 潛水艇", class: "tag-submarine", desc: "創下過單局全場最慘輸分紀錄，直接沉入海底。" });
+            }
+            if (p.gamesCount >= 2 && p.stdDev === minStdDev && minStdDev !== Infinity) {
+                p.titles.push({ text: "🧭 穩定守恆者", class: "tag-stable", desc: "每場戰績的波動標準差全場最低，發揮極其穩定！精準掌控著戰局的平衡。" });
+            }
+            if (p.gamesCount >= 5) {
+                p.titles.push({ text: "🔥 資深元老", class: "tag-veteran", desc: "累積出賽高達 5 場以上！雀壇中流砥柱，有局必到。" });
+            }
+        });
+
+        const sortedPlayers = allPlayersArr.sort((a, b) => b.totalScore - a.totalScore);
+
+        // --- 2. 當日頂部大勳章 ---
+        const latestDate = uniqueDates[uniqueDates.length - 1]; 
+        const latestGames = rawData.filter(item => item.date === latestDate && !isDong(item.name));
+        
+        let dayWinner = { name: "無", score: -Infinity };
+        let dayLoser = { name: "無", score: Infinity };
+
+        latestGames.forEach(game => {
+            if (game.score > dayWinner.score) dayWinner = game;
+            if (game.score < dayLoser.score) dayLoser = game;
+        });
+
+        if (latestGames.length > 0) {
+            document.getElementById('day-winner-name').innerText = dayWinner.name;
+            document.getElementById('day-winner-score').innerText = dayWinner.score >= 0 ? `+${dayWinner.score}` : dayWinner.score;
+            document.getElementById('day-loser-name').innerText = dayLoser.name;
+            document.getElementById('day-loser-score').innerText = dayLoser.score >= 0 ? `+${dayLoser.score}` : dayLoser.score;
+        }
+
+        // --- 3. 渲染 Chart.js 折線圖 ---
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        const colorPalette = ['#00f0ff', '#39ff14', '#ff007f', '#9d4edd', '#ff9e00'];
+
+        const chartDatasets = sortedPlayers.map((player, index) => {
+            const baseColor = colorPalette[index % colorPalette.length];
+            const dataPoints = uniqueDates.map(date => player.singleGameHistory[date]);
+
+            return {
+                label: player.name,
+                data: dataPoints,
+                borderColor: baseColor,
+                backgroundColor: baseColor,
+                pointBackgroundColor: baseColor,
+                pointHoverRadius: 7,
+                borderWidth: 3,
+                tension: 0.15,
+                fill: false,
+                spanGaps: true
+            };
+        });
+
+        globalChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: uniqueDates, datasets: chartDatasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { 
+                            color: '#ccc', 
+                            font: { size: 13, weight: 'bold' },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(15, 17, 28, 0.95)',
+                        titleColor: '#00f0ff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(0, 240, 255, 0.4)',
+                        borderWidth: 1.5
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#999', font: { size: 10 } } },
+                    y: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                        ticks: { color: '#999' },
+                        suggestedMin: -500,
+                        suggestedMax: 500
+                    }
+                }
+            }
+        });
+
+        // --- 4. 渲染英雄榜 ---
+        const leaderboardList = document.getElementById('leaderboard-list');
+        leaderboardList.innerHTML = "";
+        const maxAbsoluteScore = Math.max(...sortedPlayers.map(p => Math.abs(p.totalScore)), 1);
+
+        sortedPlayers.forEach(player => {
+            const isPositive = player.totalScore >= 0;
+            const percent = Math.min((Math.abs(player.totalScore) / maxAbsoluteScore) * 100, 100);
+            
+            const tagsHtml = player.titles.map(t => 
+                `<span class="title-tag ${t.class}" title="${t.desc}">${t.text}</span>`
+            ).join(' ');
+            
+            const itemHtml = `
+                <div class="leaderboard-item">
+                    <div class="player-info">
+                        <div class="player-name-wrapper">
+                            <span style="font-size: 1.1rem;">${player.name}</span>
+                            ${tagsHtml}
+                        </div>
+                        <span class="${isPositive ? 'score-plus' : 'score-minus'}">${isPositive ? '+' : ''}${player.totalScore}</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill ${isPositive ? 'bar-positive' : 'bar-negative'}" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `;
+            leaderboardList.insertAdjacentHTML('beforeend', itemHtml);
+        });
+
+        // --- 5. 按日期分組戰績明細 ---
+        const groupsContainer = document.getElementById('history-groups-container');
+        groupsContainer.innerHTML = "";
+        const sortedDates = [...uniqueDates].reverse();
+
+        const errorMessages = [];
+
+        sortedDates.forEach(date => {
+            const gamesOfDate = rawData.filter(item => item.date === date);
+            
+            const activePlayers = gamesOfDate.filter(g => !isDong(g.name));
+            let sessionMaxWin = -Infinity;
+            let sessionMaxLoss = Infinity;
+            
+            activePlayers.forEach(g => {
+                if (g.score > sessionMaxWin) sessionMaxWin = g.score;
+                if (g.score < sessionMaxLoss) sessionMaxLoss = g.score;
+            });
+
+            const dayTotalSum = gamesOfDate.reduce((sum, game) => sum + game.score, 0);
+            const isAccountCorrect = dayTotalSum === 0;
+
+            if (!isAccountCorrect) {
+                const diffText = dayTotalSum > 0 ? `多出 +${dayTotalSum}` : `缺少 ${dayTotalSum}`;
+                errorMessages.push(`<strong>${date}</strong>：帳目不平衡（全場總和為 ${dayTotalSum}，${diffText} 點）。請檢查試算表登錄狀況。`);
+            }
+
+            const statusBadgeHtml = isAccountCorrect 
+                ? `<span class="status-badge status-success">✓ 正負無誤</span>`
+                : `<span class="status-badge status-error">⚠️ 帳目不符 (${dayTotalSum > 0 ? '+' : ''}${dayTotalSum})</span>`;
+
+            let groupHtml = `
+                <div class="date-group" style="${!isAccountCorrect ? 'border-color: var(--neon-pink); background: rgba(255,0,127,0.02);' : ''}">
+                    <div class="date-header">
+                        <div class="date-title-text">${date}</div>
+                        ${statusBadgeHtml}
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%">玩家</th>
+                                    <th style="width: 25%">當日輸贏</th>
+                                    <th style="width: 25%">備註</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            gamesOfDate.forEach(game => {
+                const isPositive = game.score >= 0;
+                const isDongRow = isDong(game.name);
+                const nameStyle = isDongRow ? 'color: #666; font-weight: normal; font-style: italic;' : 'font-weight: bold; color: #fff;';
+                const scoreClass = isDongRow ? '' : (isPositive ? 'score-plus' : 'score-minus');
+                const scoreColorStyle = isDongRow ? 'color: #666;' : '';
+
+                let sessionTagsHtml = "";
+                if (!isDongRow) {
+                    if (game.score === sessionMaxWin && sessionMaxWin > 0) {
+                        sessionTagsHtml += `<span class="title-tag tag-session-champion" title="此戰局全場贏分最高的玩家！手氣爆棚，今日狀元非你莫屬！">🥇 今日狀元</span> `;
+                    }
+                    if (game.score === sessionMaxLoss && sessionMaxLoss < 0) {
+                        sessionTagsHtml += `<span class="title-tag tag-session-loser" title="此戰局全場輸分最多的玩家！此處不留爺，下場再贏回！">📉 本場末座</span> `;
+                    }
+
+                    if (game.score >= 1000) {
+                        sessionTagsHtml += `<span class="title-tag tag-bigwin" title="單場狂贏超過 1000 點！手氣好到連老天爺都在幫你捏牌！">👼 天堂幸運兒</span>`;
+                    } else if (game.score <= -1000) {
+                        sessionTagsHtml += `<span class="title-tag tag-bigloss" title="單場慘輸超過 1000 點！今天出門是不是沒看農民曆？">💀 地獄倒楣鬼</span>`;
+                    } else if (Math.abs(game.score) <= 500) { 
+                        sessionTagsHtml += `<span class="title-tag tag-flat" title="打完一場輸贏竟然在 500 點以內！完全是來負責洗牌、熱鬧氣氛的陪打員。">🧴 沾醬油陪打</span>`;
+                    }
+                }
+
+                groupHtml += `
+                    <tr>
+                        <td>
+                            <div class="table-player-cell">
+                                <span style="${nameStyle}">${game.name}</span>
+                                ${sessionTagsHtml}
+                            </div>
+                        </td>
+                        <td class="${scoreClass}" style="${scoreColorStyle}">${isPositive && !isDongRow ? '+' : ''}${game.score}</td>
+                        <td style="color: #666; font-size: 0.9rem;">${game.note}</td>
+                    </tr>
+                `;
+            });
+
+            groupHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            groupsContainer.insertAdjacentHTML('beforeend', groupHtml);
+        });
+
+        // --- 6. 處理頂部警告通知區塊 ---
+        const alertZone = document.getElementById('error-alert-zone');
+        if (errorMessages.length > 0) {
+            alertZone.innerHTML = `
+                <div class="alert-banner">
+                    <div class="alert-title">🚨 發現記帳錯誤！</div>
+                    ${errorMessages.map(msg => `<div class="alert-item">${msg}</div>`).join('')}
+                </div>
+            `;
+            alertZone.style.display = "block";
+        } else {
+            alertZone.style.display = "none";
+            alertZone.innerHTML = "";
+        }
+
+        document.getElementById('loading').style.display = "none";
+        document.getElementById('main-content').style.display = "block";
+    };
+
+    loadDataViaJSONP();
+</script>
+
+</body>
+</html>
