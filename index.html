@@ -26,7 +26,7 @@
             color: var(--text-color);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 12px; /* 手機版縮減邊距 */
+            padding: 12px;
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
@@ -72,7 +72,7 @@
 
         h1 {
             text-align: center;
-            font-size: 2rem; /* 手機版字體縮減，避免斷行 */
+            font-size: 2rem;
             color: #fff;
             margin: 15px 0 20px 0;
             letter-spacing: 2px;
@@ -127,7 +127,7 @@
             background: var(--card-bg);
             border: 1px solid rgba(0, 240, 255, 0.3);
             border-radius: 14px;
-            padding: 16px; /* 手機版留白縮小 */
+            padding: 16px;
             margin-bottom: 20px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
@@ -146,7 +146,7 @@
 
         h2 {
             margin-top: 0;
-            font-size: 1.1rem; /* 手機版標題優化 */
+            font-size: 1.1rem;
             border-bottom: 2px solid rgba(255, 255, 255, 0.15);
             padding-bottom: 8px;
             color: #fff;
@@ -160,7 +160,7 @@
 
         .badge-container {
             display: grid;
-            grid-template-columns: 1fr; /* 手機預設直排 */
+            grid-template-columns: 1fr;
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -202,7 +202,7 @@
         .chart-wrapper {
             position: relative;
             width: 100%;
-            height: 240px; /* 手機端高度適度降低，防止霸佔整個螢幕 */
+            height: 240px;
             margin-top: 10px;
         }
 
@@ -219,7 +219,7 @@
             padding: 1px 5px; 
             border-radius: 4px; 
             font-weight: bold; 
-            cursor: pointer; /* 行動端提示可點擊 */
+            cursor: pointer;
             transition: transform 0.1s ease;
             display: inline-block;
             white-space: nowrap;
@@ -255,7 +255,6 @@
         .status-success { background: rgba(57, 255, 20, 0.2); border: 1px solid var(--neon-green); color: var(--neon-green); }
         .status-error { background: rgba(255, 0, 127, 0.2); border: 1px solid var(--neon-pink); color: var(--neon-pink); }
 
-        /* 行動端優化表格排版 */
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 8px 6px; text-align: left; vertical-align: middle; font-size: 0.9rem; }
         tr:not(:last-child) td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
@@ -263,9 +262,8 @@
 
         .table-player-cell { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 
-        /* 手機直向極窄螢幕優化 (1080p 邏輯寬度通常為 390-430px) */
         @media (max-width: 480px) {
-            th:nth-child(3), td:nth-child(3) { display: none; } /* 備註在極窄螢幕隱藏以防破壞寬度 */
+            th:nth-child(3), td:nth-child(3) { display: none; } 
             th:nth-child(1) { width: 65%; }
             th:nth-child(2) { width: 35%; }
             td { font-size: 0.85rem; }
@@ -500,7 +498,7 @@
                 backgroundColor: baseColor,
                 pointBackgroundColor: baseColor,
                 pointHoverRadius: 6,
-                borderWidth: 2.5, /* 手機版線條微調細一點點，畫面更精緻 */
+                borderWidth: 2.5,
                 tension: 0.15,
                 fill: false,
                 spanGaps: true
@@ -602,8 +600,8 @@
             }
 
             const statusBadgeHtml = isAccountCorrect 
-                ? `<span class="status-badge status-success">✓ 正常</span>`
-                : `<span class="status-badge status-error">⚠️ 錯誤 (${dayTotalSum > 0 ? '+' : ''}${dayTotalSum})</span>`;
+                ? `<span class="status-badge status-success">✓ 正負無誤</span>`
+                : `<span class="status-badge status-error">⚠️ 帳目不符 (${dayTotalSum > 0 ? '+' : ''}${dayTotalSum})</span>`;
 
             let groupHtml = `
                 <div class="date-group" style="${!isAccountCorrect ? 'border-color: var(--neon-pink); background: rgba(255,0,127,0.02);' : ''}">
@@ -633,18 +631,18 @@
                 let sessionTagsHtml = "";
                 if (!isDongRow) {
                     if (game.score === sessionMaxWin && sessionMaxWin > 0) {
-                        sessionTagsHtml += `<span class="title-tag tag-session-champion" title="此戰局全場贏分最高的玩家！🥇 今日狀元</span> `;
+                        sessionTagsHtml += `<span class="title-tag tag-session-champion" title="此戰局全場贏分最高的玩家！手氣爆棚，今日狀元非你莫屬！">🥇 今日狀元</span> `;
                     }
                     if (game.score === sessionMaxLoss && sessionMaxLoss < 0) {
-                        sessionTagsHtml += `<span class="title-tag tag-session-loser" title="此戰局全場輸分最多的玩家！📉 本場末座</span> `;
+                        sessionTagsHtml += `<span class="title-tag tag-session-loser" title="此戰局全場輸分最多的玩家！此處不留爺，下場再贏回！">📉 本場末座</span> `;
                     }
 
                     if (game.score >= 1000) {
-                        sessionTagsHtml += `<span class="title-tag tag-bigwin" title="單場狂贏超過 1000 點！👼 天堂幸運兒</span>`;
+                        sessionTagsHtml += `<span class="title-tag tag-bigwin" title="單場狂贏超過 1000 點！手氣好到連老天爺都在幫你捏牌！">👼 天堂幸運兒</span>`;
                     } else if (game.score <= -1000) {
-                        sessionTagsHtml += `<span class="title-tag tag-bigloss" title="單場慘輸超過 1000 點！💀 地獄倒楣鬼</span>`;
+                        sessionTagsHtml += `<span class="title-tag tag-bigloss" title="單場慘輸超過 1000 點！今天出門是不是沒看農民曆？">💀 地獄倒楣鬼</span>`;
                     } else if (Math.abs(game.score) <= 500) { 
-                        sessionTagsHtml += `<span class="title-tag tag-flat" title="打完一場輸贏在 500 點以內。🧴 沾醬油陪打</span>`;
+                        sessionTagsHtml += `<span class="title-tag tag-flat" title="打完一場輸贏竟然在 500 點以內！完全是來負責洗牌、熱鬧氣氛的陪打員。">🧴 沾醬油陪打</span>`;
                     }
                 }
 
