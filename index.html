@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🀅 雀神爭霸戰 - 霓虹戰績榜</title>
     <!-- 引入 Chart.js 用於繪製折線圖 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,7 +26,7 @@
             color: var(--text-color);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 12px; /* 手機版縮減邊距 */
             overflow-x: hidden;
             min-height: 100vh;
             position: relative;
@@ -72,11 +72,16 @@
 
         h1 {
             text-align: center;
-            font-size: 2.8rem;
+            font-size: 2rem; /* 手機版字體縮減，避免斷行 */
             color: #fff;
-            margin-bottom: 30px;
-            letter-spacing: 4px;
+            margin: 15px 0 20px 0;
+            letter-spacing: 2px;
             animation: titleNeonFlow 2.5s linear infinite;
+        }
+
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            h1 { font-size: 2.8rem; letter-spacing: 4px; }
         }
 
         @keyframes titleNeonFlow {
@@ -90,25 +95,26 @@
             border: 2px solid var(--neon-pink);
             box-shadow: 0 0 15px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.2);
             border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 25px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
             color: #fff;
             font-weight: bold;
         }
         .alert-title {
             color: var(--neon-pink);
-            font-size: 1.2rem;
-            margin-bottom: 8px;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 8px;
             text-shadow: 0 0 8px var(--neon-pink);
         }
         .alert-item {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             margin: 4px 0;
             padding-left: 15px;
             position: relative;
+            line-height: 1.4;
         }
         .alert-item::before {
             content: "•";
@@ -120,13 +126,17 @@
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 25px;
+            border-radius: 14px;
+            padding: 16px; /* 手機版留白縮小 */
+            margin-bottom: 20px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             transition: all 0.2s ease;
+        }
+
+        @media (min-width: 600px) {
+            .card { padding: 24px; border-radius: 16px; }
         }
 
         .card:hover {
@@ -136,28 +146,33 @@
 
         h2 {
             margin-top: 0;
-            font-size: 1.4rem;
+            font-size: 1.1rem; /* 手機版標題優化 */
             border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             color: #fff;
             text-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+            line-height: 1.3;
+        }
+
+        @media (min-width: 600px) {
+            h2 { font-size: 1.4rem; padding-bottom: 10px; }
         }
 
         .badge-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
+            grid-template-columns: 1fr; /* 手機預設直排 */
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 550px) {
-            .badge-container { grid-template-columns: 1fr; }
+        @media (min-width: 550px) {
+            .badge-container { grid-template-columns: 1fr 1fr; gap: 15px; }
         }
 
         .badge-card {
             background: rgba(10, 11, 18, 0.8);
             border-radius: 12px;
-            padding: 18px;
+            padding: 14px;
             text-align: center;
             position: relative;
             border: 2px solid transparent; 
@@ -176,10 +191,10 @@
             100% { border-color: rgba(255, 0, 127, 1); box-shadow: inset 0 0 25px rgba(255, 0, 127, 0.3), 0 0 25px rgba(255, 0, 127, 0.7); }
         }
 
-        .badge-icon { font-size: 2.5rem; margin-bottom: 5px; display: block; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
-        .badge-title { font-size: 0.85rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
-        .badge-name { font-size: 1.6rem; font-weight: bold; color: #fff; margin: 5px 0; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
-        .badge-score { font-size: 1.3rem; font-weight: bold; }
+        .badge-icon { font-size: 2rem; margin-bottom: 3px; display: block; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+        .badge-title { font-size: 0.8rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-name { font-size: 1.4rem; font-weight: bold; color: #fff; margin: 3px 0; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
+        .badge-score { font-size: 1.2rem; font-weight: bold; }
 
         .score-plus { color: var(--neon-green); text-shadow: 0 0 8px rgba(57, 255, 20, 0.8); }
         .score-minus { color: var(--neon-pink); text-shadow: 0 0 8px rgba(255, 0, 127, 0.8); }
@@ -187,24 +202,30 @@
         .chart-wrapper {
             position: relative;
             width: 100%;
-            height: 320px;
-            margin-top: 15px;
+            height: 240px; /* 手機端高度適度降低，防止霸佔整個螢幕 */
+            margin-top: 10px;
         }
 
-        .leaderboard-item { margin-bottom: 20px; }
+        @media (min-width: 600px) {
+            .chart-wrapper { height: 320px; margin-top: 15px; }
+        }
+
+        .leaderboard-item { margin-bottom: 16px; }
         .player-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-weight: bold; }
-        .player-name-wrapper { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .player-name-wrapper { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; max-width: 75%; }
 
         .title-tag { 
-            font-size: 0.75rem; 
-            padding: 2px 6px; 
+            font-size: 0.7rem; 
+            padding: 1px 5px; 
             border-radius: 4px; 
             font-weight: bold; 
-            cursor: help; 
+            cursor: pointer; /* 行動端提示可點擊 */
             transition: transform 0.1s ease;
             display: inline-block;
+            white-space: nowrap;
+            margin: 2px 0;
         }
-        .title-tag:hover { transform: scale(1.08); }
+        .title-tag:hover { transform: scale(1.05); }
 
         .tag-god { border: 1px solid var(--neon-gold); color: var(--neon-gold); text-shadow: 0 0 8px var(--neon-gold); background: rgba(255, 215, 0, 0.2); }
         .tag-championship { border: 1px solid var(--neon-orange); color: var(--neon-orange); text-shadow: 0 0 5px var(--neon-orange); background: rgba(255, 158, 0, 0.15); }
@@ -217,32 +238,41 @@
         .tag-veteran { border: 1px solid var(--neon-yellow); color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); background: rgba(255, 255, 0, 0.15); }
         .tag-flat { border: 1px solid #0044ff; color: #66b3ff; text-shadow: 0 0 5px #0044ff; background: rgba(0, 68, 255, 0.15); }
         
-        .tag-session-champion { border: 1px solid var(--neon-gold); color: #fff; text-shadow: 0 0 8px var(--neon-gold); background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(255,158,0,0.2)); animation: titleNeonFlow 2s linear infinite; }
+        .tag-session-champion { border: 1px solid var(--neon-gold); color: #fff; text-shadow: 0 0 8px var(--neon-gold); background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(255,158,0,0.2)); }
         .tag-session-loser { border: 1px solid #ff0000; color: #fff; text-shadow: 0 0 8px #ff0000; background: linear-gradient(135deg, rgba(255,0,0,0.4), rgba(255,0,127,0.2)); }
 
-        .bar-container { background: rgba(255, 255, 255, 0.08); height: 12px; border-radius: 6px; overflow: hidden; position: relative; }
-        .bar-fill { height: 100%; border-radius: 6px; width: 0%; transition: width 1s ease-out; }
+        .bar-container { background: rgba(255, 255, 255, 0.08); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 5px; width: 0%; transition: width 1s ease-out; }
         .bar-positive { background: linear-gradient(90deg, #00f0ff, var(--neon-green)); box-shadow: 0 0 12px var(--neon-green); }
         .bar-negative { background: linear-gradient(90deg, #ff007f, #ff5500); box-shadow: 0 0 12px var(--neon-pink); }
 
-        .date-group { background: rgba(255, 255, 255, 0.01); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 18px; position: relative;}
-        .date-header { font-size: 1.1rem; font-weight: bold; color: var(--neon-cyan); text-shadow: 0 0 6px rgba(0, 240, 255, 0.6); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .date-group { background: rgba(255, 255, 255, 0.01); border: 1px dashed rgba(0, 240, 255, 0.3); border-radius: 12px; padding: 12px; margin-bottom: 15px; position: relative;}
+        .date-header { font-size: 1rem; font-weight: bold; color: var(--neon-cyan); text-shadow: 0 0 6px rgba(0, 240, 255, 0.6); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         .date-title-text { display: flex; align-items: center; }
-        .date-title-text::before { content: '📅'; margin-right: 8px; }
+        .date-title-text::before { content: '📅'; margin-right: 6px; }
         
-        .status-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 20px; font-weight: normal; text-shadow: none; }
+        .status-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 20px; font-weight: normal; text-shadow: none; }
         .status-success { background: rgba(57, 255, 20, 0.2); border: 1px solid var(--neon-green); color: var(--neon-green); }
-        .status-error { background: rgba(255, 0, 127, 0.2); border: 1px solid var(--neon-pink); color: var(--neon-pink); animation: neonPulsePink 1s ease-in-out infinite alternate; }
+        .status-error { background: rgba(255, 0, 127, 0.2); border: 1px solid var(--neon-pink); color: var(--neon-pink); }
 
+        /* 行動端優化表格排版 */
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px 12px; text-align: left; vertical-align: middle; }
+        th, td { padding: 8px 6px; text-align: left; vertical-align: middle; font-size: 0.9rem; }
         tr:not(:last-child) td { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        th { color: #888; font-size: 0.85rem; font-weight: normal; border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 6px; }
+        th { color: #888; font-size: 0.8rem; font-weight: normal; border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 6px; }
 
-        .table-player-cell { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .table-player-cell { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 
-        #loading { text-align: center; font-size: 1.2rem; color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); padding: 50px 0; }
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--neon-cyan); animation: spin 0.8s linear infinite; margin: 0 auto 15px auto; }
+        /* 手機直向極窄螢幕優化 (1080p 邏輯寬度通常為 390-430px) */
+        @media (max-width: 480px) {
+            th:nth-child(3), td:nth-child(3) { display: none; } /* 備註在極窄螢幕隱藏以防破壞寬度 */
+            th:nth-child(1) { width: 65%; }
+            th:nth-child(2) { width: 35%; }
+            td { font-size: 0.85rem; }
+        }
+
+        #loading { text-align: center; font-size: 1.1rem; color: var(--neon-cyan); text-shadow: 0 0 8px var(--neon-cyan); padding: 40px 0; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); width: 32px; height: 32px; border-radius: 50%; border-left-color: var(--neon-cyan); animation: spin 0.8s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -286,13 +316,13 @@
 
         <!-- 生涯累積英雄榜 -->
         <div class="card">
-            <h2>🏆 英雄榜（生涯累積總輸贏，滑鼠懸停稱號可看說明）</h2>
+            <h2>🏆 英雄榜（生涯累積總輸贏）</h2>
             <div id="leaderboard-list"></div>
         </div>
 
         <!-- 按日期分組的戰績明細 -->
         <div class="card">
-            <h2>📜 歷史戰局明細（按日期分組，含單場動態榮譽稱號）</h2>
+            <h2>📜 歷史戰局明細（按日期分組）</h2>
             <div id="history-groups-container"></div>
         </div>
     </div>
@@ -319,7 +349,7 @@
 
     window.processGoogleData = function(response) {
         if (!response || response.status !== 'ok' || !response.table || !response.table.rows) {
-            document.getElementById('loading').innerHTML = "🀄 無法解析試算表結構，請確認表格內容填寫是否正確。";
+            document.getElementById('loading').innerHTML = "🀅 無法解析試算表結構，請確認表格內容填寫是否正確。";
             return;
         }
 
@@ -336,7 +366,7 @@
         }).filter(item => item.name && item.name !== "姓名" && item.name !== "玩家");
 
         if (rawData.length === 0) {
-            document.getElementById('loading').innerHTML = "🀄 試算表讀取成功，但目前沒有找到任何玩家戰績！";
+            document.getElementById('loading').innerHTML = "🀅 試算表讀取成功，但目前沒有找到任何玩家戰績！";
             return;
         }
 
@@ -469,8 +499,8 @@
                 borderColor: baseColor,
                 backgroundColor: baseColor,
                 pointBackgroundColor: baseColor,
-                pointHoverRadius: 7,
-                borderWidth: 3,
+                pointHoverRadius: 6,
+                borderWidth: 2.5, /* 手機版線條微調細一點點，畫面更精緻 */
                 tension: 0.15,
                 fill: false,
                 spanGaps: true
@@ -487,8 +517,9 @@
                     legend: {
                         labels: { 
                             color: '#ccc', 
-                            font: { size: 13, weight: 'bold' },
-                            padding: 15
+                            font: { size: 11, weight: 'bold' },
+                            boxWidth: 12,
+                            padding: 10
                         }
                     },
                     tooltip: {
@@ -502,10 +533,10 @@
                     }
                 },
                 scales: {
-                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#999', font: { size: 10 } } },
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#999', font: { size: 9 } } },
                     y: { 
                         grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
-                        ticks: { color: '#999' },
+                        ticks: { color: '#999', font: { size: 9 } },
                         suggestedMin: -500,
                         suggestedMax: 500
                     }
@@ -530,10 +561,10 @@
                 <div class="leaderboard-item">
                     <div class="player-info">
                         <div class="player-name-wrapper">
-                            <span style="font-size: 1.1rem;">${player.name}</span>
+                            <span style="font-size: 1rem;">${player.name}</span>
                             ${tagsHtml}
                         </div>
-                        <span class="${isPositive ? 'score-plus' : 'score-minus'}">${isPositive ? '+' : ''}${player.totalScore}</span>
+                        <span class="${isPositive ? 'score-plus' : 'score-minus'}" style="font-size: 1rem;">${isPositive ? '+' : ''}${player.totalScore}</span>
                     </div>
                     <div class="bar-container">
                         <div class="bar-fill ${isPositive ? 'bar-positive' : 'bar-negative'}" style="width: ${percent}%"></div>
@@ -567,12 +598,12 @@
 
             if (!isAccountCorrect) {
                 const diffText = dayTotalSum > 0 ? `多出 +${dayTotalSum}` : `缺少 ${dayTotalSum}`;
-                errorMessages.push(`<strong>${date}</strong>：帳目不平衡（全場總和為 ${dayTotalSum}，${diffText} 點）。請檢查試算表登錄狀況。`);
+                errorMessages.push(`<strong>${date}</strong>：帳目不平衡（全場總和為 ${dayTotalSum}，${diffText} 點）。`);
             }
 
             const statusBadgeHtml = isAccountCorrect 
-                ? `<span class="status-badge status-success">✓ 正負無誤</span>`
-                : `<span class="status-badge status-error">⚠️ 帳目不符 (${dayTotalSum > 0 ? '+' : ''}${dayTotalSum})</span>`;
+                ? `<span class="status-badge status-success">✓ 正常</span>`
+                : `<span class="status-badge status-error">⚠️ 錯誤 (${dayTotalSum > 0 ? '+' : ''}${dayTotalSum})</span>`;
 
             let groupHtml = `
                 <div class="date-group" style="${!isAccountCorrect ? 'border-color: var(--neon-pink); background: rgba(255,0,127,0.02);' : ''}">
@@ -584,9 +615,9 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 50%">玩家</th>
-                                    <th style="width: 25%">當日輸贏</th>
-                                    <th style="width: 25%">備註</th>
+                                    <th>玩家</th>
+                                    <th>當日輸贏</th>
+                                    <th>備註</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -602,18 +633,18 @@
                 let sessionTagsHtml = "";
                 if (!isDongRow) {
                     if (game.score === sessionMaxWin && sessionMaxWin > 0) {
-                        sessionTagsHtml += `<span class="title-tag tag-session-champion" title="此戰局全場贏分最高的玩家！手氣爆棚，今日狀元非你莫屬！">🥇 今日狀元</span> `;
+                        sessionTagsHtml += `<span class="title-tag tag-session-champion" title="此戰局全場贏分最高的玩家！🥇 今日狀元</span> `;
                     }
                     if (game.score === sessionMaxLoss && sessionMaxLoss < 0) {
-                        sessionTagsHtml += `<span class="title-tag tag-session-loser" title="此戰局全場輸分最多的玩家！此處不留爺，下場再贏回！">📉 本場末座</span> `;
+                        sessionTagsHtml += `<span class="title-tag tag-session-loser" title="此戰局全場輸分最多的玩家！📉 本場末座</span> `;
                     }
 
                     if (game.score >= 1000) {
-                        sessionTagsHtml += `<span class="title-tag tag-bigwin" title="單場狂贏超過 1000 點！手氣好到連老天爺都在幫你捏牌！">👼 天堂幸運兒</span>`;
+                        sessionTagsHtml += `<span class="title-tag tag-bigwin" title="單場狂贏超過 1000 點！👼 天堂幸運兒</span>`;
                     } else if (game.score <= -1000) {
-                        sessionTagsHtml += `<span class="title-tag tag-bigloss" title="單場慘輸超過 1000 點！今天出門是不是沒看農民曆？">💀 地獄倒楣鬼</span>`;
+                        sessionTagsHtml += `<span class="title-tag tag-bigloss" title="單場慘輸超過 1000 點！💀 地獄倒楣鬼</span>`;
                     } else if (Math.abs(game.score) <= 500) { 
-                        sessionTagsHtml += `<span class="title-tag tag-flat" title="打完一場輸贏竟然在 500 點以內！完全是來負責洗牌、熱鬧氣氛的陪打員。">🧴 沾醬油陪打</span>`;
+                        sessionTagsHtml += `<span class="title-tag tag-flat" title="打完一場輸贏在 500 點以內。🧴 沾醬油陪打</span>`;
                     }
                 }
 
@@ -626,7 +657,7 @@
                             </div>
                         </td>
                         <td class="${scoreClass}" style="${scoreColorStyle}">${isPositive && !isDongRow ? '+' : ''}${game.score}</td>
-                        <td style="color: #666; font-size: 0.9rem;">${game.note}</td>
+                        <td style="color: #666; font-size: 0.8rem; white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis;">${game.note}</td>
                     </tr>
                 `;
             });
@@ -658,6 +689,17 @@
         document.getElementById('loading').style.display = "none";
         document.getElementById('main-content').style.display = "block";
     };
+
+    // 補丁：使手機點擊稱號時能彈出說明視窗
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('title-tag')) {
+            const titleText = e.target.innerText;
+            const descText = e.target.getAttribute('title');
+            if (descText) {
+                alert(`${titleText}\n\n${descText}`);
+            }
+        }
+    });
 
     loadDataViaJSONP();
 </script>
